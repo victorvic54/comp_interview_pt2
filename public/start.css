@@ -24,3 +24,9 @@ h3 {
 #message {
   display: none;
 }
+
+.highlight {
+    background-color: yellow;
+    transition: all ease-in-out ;
+    cursor: pointer;
+}
