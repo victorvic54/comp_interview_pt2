@@ -181,7 +181,6 @@
                 recognition.lang = 'en-US';
                 recognition.interimResults = false;
                 recognition.continuous = true;
-
                 recognition.onresult = function(event) {
                     var last = event.results.length - 1;
                     var command = event.results[last][0].transcript;
@@ -255,10 +254,12 @@
 				/*********** setup of emotion detection *************/
 
 				var ctrack = new clm.tracker({useWebGL : true});
+				var time = null;
 				ctrack.init(pModel);
 
 				function startVideo() {
 					// start video
+					time = Date.now();
                     vid.play();
                     recognition.start();
                     
@@ -275,6 +276,7 @@
 				function stopVideo() {
 					// start video
                     vid.pause();
+                    console.log(angry);
                     recognition.stop();
 
                     // Enable start recording button
@@ -308,7 +310,8 @@
 						}
 					}
 				}
-				
+
+
 				var ec = new emotionClassifier();
 				ec.init(emotionModel);
 				var emotionData = ec.getBlank();	
@@ -368,6 +371,10 @@
 				  attr("transform", "translate(0, 18)").
 				  attr("class", "yAxis");
 
+                var angry = [];
+                var sad = [];
+                var surprise = [];
+                var happy = [];
 				function updateData(data) {
 					// update
 					var rects = svg.selectAll("rect")
@@ -378,6 +385,15 @@
 						.data(data)
 						.attr("y", function(datum) { return height - y(datum.value); })
 						.text(function(datum) { return datum.value.toFixed(1);});
+					var angryData = { y: data[0].value };
+					var sadData = { y: data[1].value };
+					var surpriseData = { y: data[2].value };
+					var happyData = { y: data[3].value };
+
+			        angry.push(angryData);
+			        sad.push(sadData);
+			        surprise.push(surpriseData);
+			        happy.push(happyData);
 
 					// enter 
 					rects.enter().append("svg:rect");
