@@ -167,257 +167,357 @@
 			<span id='message'>
 			</span>
 		</div>
-			<script>
-                var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
-                var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
+		<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+		<script>
 
-                var grammar = '#JSGF V1.0;'
+			var message = document.querySelector('#message');
+			var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+			var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
 
-                var recognition = new SpeechRecognition();
-                var speechRecognitionList = new SpeechGrammarList();
+			var grammar = '#JSGF V1.0;'
 
-                speechRecognitionList.addFromString(grammar, 1);
-                recognition.grammars = speechRecognitionList;
-                recognition.lang = 'en-US';
-                recognition.interimResults = false;
-                recognition.continuous = true;
-                recognition.onresult = function(event) {
-                    var last = event.results.length - 1;
-                    var command = event.results[last][0].transcript;
-                    message.textContent += command + ".";
-                };
+			var recognition = new SpeechRecognition();
+			var speechRecognitionList = new SpeechGrammarList();
 
-                recognition.onerror = function(event) {
-                    message.textContent = 'Error occurred in recognition: ' + event.error;
-                }
+			speechRecognitionList.addFromString(grammar, 1);
+			recognition.grammars = speechRecognitionList;
+			recognition.lang = 'en-US';
+			recognition.interimResults = false;
+			recognition.continuous = true;
+			recognition.onresult = function(event) {
+				var last = event.results.length - 1;
+				var command = event.results[last][0].transcript;
+				message.textContent += command + ".";
+			};
 
+			recognition.onerror = function(event) {
+				message.textContent = 'Error occurred in recognition: ' + event.error;
+			}
 
-				var vid = document.getElementById('videoel');
-				var overlay = document.getElementById('overlay');
-				var overlayCC = overlay.getContext('2d');
+			var vid = document.getElementById('videoel');
+			var overlay = document.getElementById('overlay');
+			var overlayCC = overlay.getContext('2d');
+			
+			/********** check and set up video/webcam **********/
+
+			function enablestart() {
+				var startbutton = document.getElementById('btn-start-recording');
+				startbutton.value = "start";
+				startbutton.disabled = null;
+			}
+			
+			/*var insertAltVideo = function(video) {
+				if (supports_video()) {
+					if (supports_ogg_theora_video()) {
+						video.src = "../media/cap12_edit.ogv";
+					} else if (supports_h264_baseline_video()) {
+						video.src = "../media/cap12_edit.mp4";
+					} else {
+						return false;
+					}
+					//video.play();
+					return true;
+				} else return false;
+			}*/
+			navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+			window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
+
+			// check for camerasupport
+			if (navigator.getUserMedia) {
+				// set up stream
 				
-				/********** check and set up video/webcam **********/
-
-				function enablestart() {
-					var startbutton = document.getElementById('btn-start-recording');
-					startbutton.value = "start";
-					startbutton.disabled = null;
-				}
-				
-				/*var insertAltVideo = function(video) {
-					if (supports_video()) {
-						if (supports_ogg_theora_video()) {
-							video.src = "../media/cap12_edit.ogv";
-						} else if (supports_h264_baseline_video()) {
-							video.src = "../media/cap12_edit.mp4";
-						} else {
-							return false;
-						}
-						//video.play();
-						return true;
-					} else return false;
-				}*/
-				navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-				window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
-
-				// check for camerasupport
-				if (navigator.getUserMedia) {
-					// set up stream
-					
-					var videoSelector = {video : true};
-					if (window.navigator.appVersion.match(/Chrome\/(.*?) /)) {
-						var chromeVersion = parseInt(window.navigator.appVersion.match(/Chrome\/(\d+)\./)[1], 10);
-						if (chromeVersion < 20) {
-							videoSelector = "video";
-						}
-					};
-				
-					navigator.getUserMedia(videoSelector, function( stream ) {
-						if (vid.mozCaptureStream) {
-							vid.mozSrcObject = stream;
-						} else {
-							//vid.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
-                            vid.srcObject = (stream)
-						}
-						vid.play();
-					}, function() {
-						//insertAltVideo(vid);
-						alert("There was some problem trying to fetch video from your webcam. If you have a webcam, please make sure to accept when the browser asks for access to your webcam.");
-					});
-				} else {
+				var videoSelector = {video : true};
+				if (window.navigator.appVersion.match(/Chrome\/(.*?) /)) {
+					var chromeVersion = parseInt(window.navigator.appVersion.match(/Chrome\/(\d+)\./)[1], 10);
+					if (chromeVersion < 20) {
+						videoSelector = "video";
+					}
+				};
+			
+				navigator.getUserMedia(videoSelector, function( stream ) {
+					if (vid.mozCaptureStream) {
+						vid.mozSrcObject = stream;
+					} else {
+						//vid.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
+						vid.srcObject = (stream)
+					}
+					vid.play();
+				}, function() {
 					//insertAltVideo(vid);
-					alert("This demo depends on getUserMedia, which your browser does not seem to support. :(");
+					alert("There was some problem trying to fetch video from your webcam. If you have a webcam, please make sure to accept when the browser asks for access to your webcam.");
+				});
+			} else {
+				//insertAltVideo(vid);
+				alert("This demo depends on getUserMedia, which your browser does not seem to support. :(");
+			}
+
+			vid.addEventListener('canplay', enablestart, false);
+			
+			/*********** setup of emotion detection *************/
+
+			var ctrack = new clm.tracker({useWebGL : true});
+			var time = null;
+			ctrack.init(pModel);
+
+			function startVideo() {
+				// start video
+				time = Date.now();
+				vid.play();
+				recognition.start();
+				
+				// Enable stop recording button
+				document.getElementById('btn-stop-recording').disabled = false;
+				document.getElementById('btn-start-recording').disabled = true;
+
+				// start tracking
+				ctrack.start(vid);
+				// start loop to draw face
+				drawLoop();
+			}
+			
+			function stopVideo() {
+				// start video
+				vid.pause();
+				recognition.stop();
+
+				// Enable start recording button
+				document.getElementById('btn-start-recording').disabled = true;
+				// Enable stop recording button
+				document.getElementById('btn-stop-recording').disabled = true;
+				document.getElementById('btn-check').disabled = false;
+
+
+			}
+			
+			function drawLoop() {
+				requestAnimFrame(drawLoop);
+				overlayCC.clearRect(0, 0, 400, 300);
+				//psrElement.innerHTML = "score :" + ctrack.getScore().toFixed(4);
+				if (ctrack.getCurrentPosition()) {
+					ctrack.draw(overlay);
 				}
 
-				vid.addEventListener('canplay', enablestart, false);
+				var cp = ctrack.getCurrentParameters();
 				
-				/*********** setup of emotion detection *************/
-
-				var ctrack = new clm.tracker({useWebGL : true});
-				var time = null;
-				ctrack.init(pModel);
-
-				function startVideo() {
-					// start video
-					time = Date.now();
-                    vid.play();
-                    recognition.start();
-                    
-                    // Enable stop recording button
-                    document.getElementById('btn-stop-recording').disabled = false;
-					document.getElementById('btn-start-recording').disabled = true;
-
-					// start tracking
-					ctrack.start(vid);
-					// start loop to draw face
-                    drawLoop();
-				}
-				
-				function stopVideo() {
-					// start video
-                    vid.pause();
-                    console.log(angry);
-                    recognition.stop();
-
-                    // Enable start recording button
-                    document.getElementById('btn-start-recording').disabled = true;
-                    // Enable stop recording button
-                    document.getElementById('btn-stop-recording').disabled = true;
-                    document.getElementById('btn-check').disabled = false;
-
-
-				}
-				
-				function drawLoop() {
-					requestAnimFrame(drawLoop);
-					overlayCC.clearRect(0, 0, 400, 300);
-					//psrElement.innerHTML = "score :" + ctrack.getScore().toFixed(4);
-					if (ctrack.getCurrentPosition()) {
-						ctrack.draw(overlay);
-					}
-
-					var cp = ctrack.getCurrentParameters();
-					
-					var er = ec.meanPredict(cp);
-					if (er) {
-						updateData(er);
-						for (var i = 0;i < er.length;i++) {
-							if (er[i].value > 0.4) {
-								document.getElementById('icon'+(i+1)).style.visibility = 'visible';
-							} else {
-								document.getElementById('icon'+(i+1)).style.visibility = 'hidden';
-							}
+				var er = ec.meanPredict(cp);
+				if (er) {
+					updateData(er);
+					for (var i = 0;i < er.length;i++) {
+						if (er[i].value > 0.4) {
+							document.getElementById('icon'+(i+1)).style.visibility = 'visible';
+						} else {
+							document.getElementById('icon'+(i+1)).style.visibility = 'hidden';
 						}
 					}
 				}
+			}
 
+			var ec = new emotionClassifier();
+			ec.init(emotionModel);
+			var emotionData = ec.getBlank();	
+			
+			/************ d3 code for barchart *****************/
 
-				var ec = new emotionClassifier();
-				ec.init(emotionModel);
-				var emotionData = ec.getBlank();	
+			var margin = {top : 20, right : 20, bottom : 10, left : 40},
+				width = 400 - margin.left - margin.right,
+				height = 200 - margin.top - margin.bottom;
+
+			var barWidth = 30;
+
+			var formatPercent = d3.format(".0%");
+			
+			var x = d3.scale.linear()
+				.domain([0, ec.getEmotions().length]).range([margin.left, width+margin.left]);
+
+			var y = d3.scale.linear()
+				.domain([0,1]).range([0, height]);
+
+			var svg = d3.select("#emotion_chart").append("svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + 50 + margin.top + margin.bottom)
+			
+			svg.selectAll("rect").
+				data(emotionData).
+				enter().
+				append("svg:rect").
+				attr("x", function(datum, index) { return x(index); }).
+				attr("y", function(datum) { return height - y(datum.value); }).
+				attr("height", function(datum) { return y(datum.value); }).
+				attr("width", barWidth).
+				attr("fill", "#2d578b");
+
+			svg.selectAll("text.labels").
+				data(emotionData).
+				enter().
+				append("svg:text").
+				attr("x", function(datum, index) { return x(index) + barWidth; }).
+				attr("y", function(datum) { return height - y(datum.value); }).
+				attr("dx", -barWidth/2).
+				attr("dy", "1.5em").
+				attr("text-anchor", "middle").
+				text(function(datum) { return datum.value;}).
+				attr("fill", "black").
+				attr("class", "labels");
+			
+			svg.selectAll("text.yAxis").
+				data(emotionData).
+				enter().append("svg:text").
+				attr("x", function(datum, index) { return x(index) + barWidth; }).
+				attr("y", height).
+				attr("dx", -barWidth/2).
+				attr("text-anchor", "middle").
+				attr("style", "font-size: 12").
+				text(function(datum) { return datum.emotion;}).
+				attr("transform", "translate(0, 18)").
+				attr("class", "yAxis");
+
+			var angry = [];
+			var sad = [];
+			var surprise = [];
+			var happy = [];
+			function updateData(data) {
+				// update
+				var rects = svg.selectAll("rect")
+					.data(data)
+					.attr("y", function(datum) { return height - y(datum.value); })
+					.attr("height", function(datum) { return y(datum.value); });
+				var texts = svg.selectAll("text.labels")
+					.data(data)
+					.attr("y", function(datum) { return height - y(datum.value); })
+					.text(function(datum) { return datum.value.toFixed(1);});
 				
-				/************ d3 code for barchart *****************/
+				var angryData = { y: data[0].value };
+				var sadData = { y: data[1].value };
+				var surpriseData = { y: data[2].value };
+				var happyData = { y: data[3].value };
 
-				var margin = {top : 20, right : 20, bottom : 10, left : 40},
-					width = 400 - margin.left - margin.right,
-					height = 200 - margin.top - margin.bottom;
+				angry.push(angryData);
+				sad.push(sadData);
+				surprise.push(surpriseData);
+				happy.push(happyData);
 
-				var barWidth = 30;
+				// enter 
+				rects.enter().append("svg:rect");
+				texts.enter().append("svg:text");
 
-				var formatPercent = d3.format(".0%");
-				
-				var x = d3.scale.linear()
-					.domain([0, ec.getEmotions().length]).range([margin.left, width+margin.left]);
+				// exit
+				rects.exit().remove();
+				texts.exit().remove();
+			}
 
-				var y = d3.scale.linear()
-					.domain([0,1]).range([0, height]);
+			/******** stats ********/
 
-				var svg = d3.select("#emotion_chart").append("svg")
-					.attr("width", width + margin.left + margin.right)
-					.attr("height", height + 50 + margin.top + margin.bottom)
-				
-				svg.selectAll("rect").
-				  data(emotionData).
-				  enter().
-				  append("svg:rect").
-				  attr("x", function(datum, index) { return x(index); }).
-				  attr("y", function(datum) { return height - y(datum.value); }).
-				  attr("height", function(datum) { return y(datum.value); }).
-				  attr("width", barWidth).
-				  attr("fill", "#2d578b");
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			document.getElementById('container').appendChild( stats.domElement );
 
-				svg.selectAll("text.labels").
-				  data(emotionData).
-				  enter().
-				  append("svg:text").
-				  attr("x", function(datum, index) { return x(index) + barWidth; }).
-				  attr("y", function(datum) { return height - y(datum.value); }).
-				  attr("dx", -barWidth/2).
-				  attr("dy", "1.5em").
-				  attr("text-anchor", "middle").
-				  text(function(datum) { return datum.value;}).
-				  attr("fill", "black").
-				  attr("class", "labels");
-				
-				svg.selectAll("text.yAxis").
-				  data(emotionData).
-				  enter().append("svg:text").
-				  attr("x", function(datum, index) { return x(index) + barWidth; }).
-				  attr("y", height).
-				  attr("dx", -barWidth/2).
-				  attr("text-anchor", "middle").
-				  attr("style", "font-size: 12").
-				  text(function(datum) { return datum.emotion;}).
-				  attr("transform", "translate(0, 18)").
-				  attr("class", "yAxis");
+			// update stats on every iteration
+			document.addEventListener('clmtrackrIteration', function(event) {
+				stats.update();
+			}, false);
 
-                var angry = [];
-                var sad = [];
-                var surprise = [];
-                var happy = [];
-				function updateData(data) {
-					// update
-					var rects = svg.selectAll("rect")
-						.data(data)
-						.attr("y", function(datum) { return height - y(datum.value); })
-						.attr("height", function(datum) { return y(datum.value); });
-					var texts = svg.selectAll("text.labels")
-						.data(data)
-						.attr("y", function(datum) { return height - y(datum.value); })
-						.text(function(datum) { return datum.value.toFixed(1);});
-					var angryData = { y: data[0].value };
-					var sadData = { y: data[1].value };
-					var surpriseData = { y: data[2].value };
-					var happyData = { y: data[3].value };
+			// ==============================================================
+			$(document).ready(function() {
+				var urlGrammarCheck = "https://api.textgears.com/check.php";
+				$('#btn-check').click(function(){
+						var chart = new CanvasJS.Chart("chartContainer", {
+							title: {
+								text: "Emotion Analysis Graph"
+							},
+							axisX: {
+								valueFormatString: "MMM YYYY"
+							},
+							axisY2: {
+								title: "Intensity"
+							},
+							toolTip: {
+								shared: true
+							},
+							legend: {
+								cursor: "pointer",
+								verticalAlign: "top",
+								horizontalAlign: "center",
+								dockInsidePlotArea: true,
+								itemclick: toogleDataSeries
+							},
+							data: [{
+								type:"line",
+								axisYType: "secondary",
+								name: "Angry",
+								showInLegend: true,
+								markerSize: 0,
+								dataPoints: angry
+							},
+							{
+								type: "line",
+								axisYType: "secondary",
+								name: "Sad",
+								showInLegend: true,
+								markerSize: 0,
+								dataPoints: sad
+							},
+							{
+								type: "line",
+								axisYType: "secondary",
+								name: "Surprised",
+								showInLegend: true,
+								markerSize: 0,
+								dataPoints: surprise
+							},
+							{
+								type: "line",
+								axisYType: "secondary",
+								name: "Happy",
+								showInLegend: true,
+								markerSize: 0,
+								dataPoints: happy
+							}]
+						});
+						chart.render();
 
-			        angry.push(angryData);
-			        sad.push(sadData);
-			        surprise.push(surpriseData);
-			        happy.push(happyData);
+						function toogleDataSeries(e){
+							if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+								e.dataSeries.visible = false;
+							} else{
+								e.dataSeries.visible = true;
+							}
+							chart.render();
+						}
+					
+					this.disabled = true;
+					$.ajax({
+						url: urlGrammarCheck,
+						data: {
+							text: message.textContent,
+							key: 'wTZGURy3SHOYjHyR'
+						},
+						type: 'POST',
+						success: function(result) {
+							var initialMessage = document.getElementById('message').innerHTML;
+							var finalMessage = 'Your response: ';
+							var prev = 0;
+							var temp = 0;
+							result.errors.forEach(error => {
+								const change = error.offset + error.length;
+								const suggestion = error.better[0];
+								finalMessage += initialMessage.substring(temp, prev + error.offset) + "<span class='highlight' title=" + suggestion
+										+ ">" + initialMessage.substring(prev + error.offset, prev + change) + "</span>";
+								temp = prev + change;
+							});
+							finalMessage += initialMessage.substring(temp);
+							document.getElementById('message').innerHTML = finalMessage;
+							document.getElementById('message').style.display = 'block';
 
-					// enter 
-					rects.enter().append("svg:rect");
-					texts.enter().append("svg:text");
+						},
+						error: function(errors) {
+							console.log(error);
+						}
+					})
+				})
+			})
 
-					// exit
-					rects.exit().remove();
-					texts.exit().remove();
-				}
-
-				/******** stats ********/
-
-				stats = new Stats();
-				stats.domElement.style.position = 'absolute';
-				stats.domElement.style.top = '0px';
-				document.getElementById('container').appendChild( stats.domElement );
-
-				// update stats on every iteration
-				document.addEventListener('clmtrackrIteration', function(event) {
-					stats.update();
-				}, false);
-				
-            </script>
-            <script src="/start.js"></script>
-		
+		</script>
+		<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 	</body>
 </html>
