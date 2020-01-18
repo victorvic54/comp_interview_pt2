@@ -5,26 +5,41 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="start  .css">
+	<link rel="stylesheet" type="text/css" href="/start.css">
 </head>
 <body>
 	<div class="container">
        <video autoplay></video>
-	</div>
+  </div>
+  <div class="speechToText">
+    <button id='btnGiveCommand'>Give Command!</button>
+    <br><br>
+    <span id='message'></span>
+    <br><br>
+    
+    <input id='chkSteve' type="checkbox"> Steve Rogers
+    <br>
+    <input id='chkTony' type="checkbox"> Tony Stark
+    <br>
+    <input id='chkBruce' type="checkbox"> Bruce Banner
+    <br>
+    <input id='chkNick' type="checkbox"> Nick Fury
+  </div>
 
 	<script>
+    const constraints = {
+      video: true,
+      width: 720,
+      height: 720
+    };
 
-  const constraints = {
-    video: true,
-    width: 720,
-    height: 720
-  };
+    const video = document.querySelector('video');
 
-  const video = document.querySelector('video');
-
-  navigator.mediaDevices.getUserMedia(constraints).
-    then((stream) => {video.srcObject = stream});
+    navigator.mediaDevices.getUserMedia(constraints).
+      then((stream) => {video.srcObject = stream});
+    
   </script>
+  <script src="/start.js"></script>
 
 </body>
 </html>
