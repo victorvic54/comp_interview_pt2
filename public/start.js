@@ -39,6 +39,6 @@ var message = document.querySelector('#message');
             message.textContent = 'Error occurred in recognition: ' + event.error;
         }        
 
-        document.querySelector('#btnGiveCommand').addEventListener('click', function(){
+        document.querySelector('#btnStart').addEventListener('click', function(){
             recognition.start();
         });

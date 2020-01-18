@@ -6,13 +6,15 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="/start.css">
+	<script src="/start.js"></script>
 </head>
 <body>
 	<div class="container">
-       <video autoplay></video>
+       <video controls></video>
   </div>
   <div class="speechToText">
-    <button id='btnGiveCommand'>Give Command!</button>
+    <button id='btnStart' class='btn btn-primary'>Start Recording</button>
+    <button id='btnStop' class='btn btn-danger' disabled>Stop Recoding</button>
     <br><br>
     <span id='message'></span>
     <br><br>
@@ -28,18 +30,24 @@
 
 	<script>
     const constraints = {
+      audio: true,
       video: true,
       width: 720,
       height: 720
     };
 
-    const video = document.querySelector('video');
+
+    const videoElement = document.querySelector('video');
+
+    var mediaRecorder;
+    var chunks = [];
+    var count = 0;
+    var name;
 
     navigator.mediaDevices.getUserMedia(constraints).
-      then((stream) => {video.srcObject = stream});
+      then((stream) => {videoElement.srcObject = stream});
     
   </script>
-  <script src="/start.js"></script>
 
 </body>
 </html>
