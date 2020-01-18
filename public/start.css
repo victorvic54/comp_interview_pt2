@@ -1,5 +1,5 @@
 * {
-	margin: 0;
+	margin: 10px;
 	padding: 0;
 }
 
@@ -12,4 +12,11 @@ body{
 
 video {
 	border: 1px outset black;
+	max-height: 500px;
+	max-width: 500px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
 }
