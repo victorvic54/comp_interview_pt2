@@ -7,6 +7,7 @@ var message = document.querySelector('#message');
 
         var recognition = new SpeechRecognition();
         var speechRecognitionList = new SpeechGrammarList();
+
         speechRecognitionList.addFromString(grammar, 1);
         recognition.grammars = speechRecognitionList;
         recognition.lang = 'en-US';
@@ -19,12 +20,9 @@ var message = document.querySelector('#message');
             message.textContent += command + ".";
         };
 
-        recognition.onend = function() {
-            message.textContent += '.';
-        }
-
         document.querySelector('#btn-stop-recording').addEventListener('click', function(){
             recognition.stop();
+            document.querySelector('#btn-check').disabled = false;
         });
 
         recognition.onerror = function(event) {
@@ -34,3 +32,33 @@ var message = document.querySelector('#message');
         document.querySelector('#btn-start-recording').addEventListener('click', function(){
             recognition.start();
         });
+
+        $(document).ready(function() {
+
+            var urlGrammarCheck = "https://api.textgears.com/check.php";
+            $('#btn-check').click(function(){
+                this.disabled = true;
+                $.ajax({
+                    url: urlGrammarCheck,
+                    data: {
+                        text: message.textContent.slice(15),
+                        key: 'wTZGURy3SHOYjHyR'
+                    },
+                    type: 'POST',
+                    success: function(result) {
+                        var initialMessage = document.getElementById('message').textContent;
+                        var finalMessage = '';
+                        var prev = 0;
+                        document.getElementById('message').style.display = 'block';
+                        result.errors.forEach(error => {
+                            const change = error.offset + error.length;
+                            const suggestion = error.better[0];
+                            finalMessage += initialMessage.slice(prev, error.offset)
+                        });
+                    },
+                    error: function(errors) {
+                        console.log(error);
+                    }
+                })
+            })
+        })

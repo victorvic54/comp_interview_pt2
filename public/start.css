@@ -11,12 +11,16 @@ body{
 }
 
 video {
-	border: 1px outset black;
-	max-height: 500px;
-	max-width: 500px;
+	border: 1px inset black;
+	height: 300px;
+	width: 400px;
 }
 
-h1 {
+h3 {
   text-align: center;
   margin-bottom: 20px;
+}
+
+#message {
+  display: none;
 }
