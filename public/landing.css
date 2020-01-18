@@ -60,7 +60,14 @@ section{
     border-radius: 8px;
 }
 
+a {
+    text-decoration: none;
+}
+
 .headline{
+    background-color: rgb(56, 96, 228);
+    padding: 20px;
+    border-radius: 8px;
     position: absolute;
     top: 80%;
     left: 10%;
