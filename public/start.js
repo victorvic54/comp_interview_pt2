@@ -20,11 +20,6 @@ var message = document.querySelector('#message');
             message.textContent += command + ".";
         };
 
-        document.querySelector('#btn-stop-recording').addEventListener('click', function(){
-            recognition.stop();
-            document.querySelector('#btn-check').disabled = false;
-        });
-
         recognition.onerror = function(event) {
             message.textContent = 'Error occurred in recognition: ' + event.error;
         }        

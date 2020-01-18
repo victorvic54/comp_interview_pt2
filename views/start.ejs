@@ -238,6 +238,8 @@
                     
                     // Enable stop recording button
                     document.getElementById('btn-stop-recording').disabled = false;
+                    document.getElementById('btn-start-recording').disabled = true;
+
 
 					// start tracking
 					ctrack.start(vid);
@@ -253,13 +255,12 @@
                     document.getElementById('btn-start-recording').disabled = true;
                     // Enable stop recording button
                     document.getElementById('btn-stop-recording').disabled = true;
+                    document.getElementById('btn-check').disabled = false;
 
 					// start tracking
 					//ctrack.start(vid);
 					// start loop to draw face
 					//drawLoop();
-					var audio = new Audio('resource/thankyou.wav');
-					audio.play();
                 }
             
 				function drawLoop() {
