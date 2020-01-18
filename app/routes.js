@@ -8,7 +8,7 @@ module.exports = (app) => {
         res.render("landing.ejs");
     });
 
-    app.get('/thankyou', (req, res) => {
-        res.render('thankyou.ejs');
+    app.get('/start', (req, res) => {
+        res.render('start.ejs');
     })
 }
