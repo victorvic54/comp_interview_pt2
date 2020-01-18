@@ -34,7 +34,6 @@ var message = document.querySelector('#message');
         });
 
         $(document).ready(function() {
-
             var urlGrammarCheck = "https://api.textgears.com/check.php";
             $('#btn-check').click(function(){
                 this.disabled = true;
