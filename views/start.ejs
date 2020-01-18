@@ -6,26 +6,19 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="/start.css">
-	<script src="/start.js"></script>
+	<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </head>
 <body>
 	<div class="container">
-       <video controls></video>
-  </div>
-  <div class="speechToText">
-    <button id='btnStart' class='btn btn-primary'>Start Recording</button>
-    <button id='btnStop' class='btn btn-danger' disabled>Stop Recoding</button>
-    <br><br>
-    <span id='message'></span>
-    <br><br>
-    
-    <input id='chkSteve' type="checkbox"> Steve Rogers
-    <br>
-    <input id='chkTony' type="checkbox"> Tony Stark
-    <br>
-    <input id='chkBruce' type="checkbox"> Bruce Banner
-    <br>
-    <input id='chkNick' type="checkbox"> Nick Fury
+	   <video background-color='black'></video>
+	   <div class="speechToText">
+         <button id='btn-start-recording' class='btn btn-primary'>Start Recording</button>
+         <button id='btn-stop-recording' class='btn btn-danger' disabled>Stop Recoding</button>
+         <br><br>
+         <span id='message'>Voice to Text: </span>
+         <br><br>
+     </div>
   </div>
 
 	<script>
@@ -36,18 +29,67 @@
       height: 720
     };
 
-
     const videoElement = document.querySelector('video');
+    var recorder;
 
-    var mediaRecorder;
-    var chunks = [];
-    var count = 0;
-    var name;
+    document.getElementById('btn-start-recording').addEventListener("click", function(){
+            // Disable start recording button
+            this.disabled = true;
 
-    navigator.mediaDevices.getUserMedia(constraints).
-      then((stream) => {videoElement.srcObject = stream});
-    
+            // Request access to the media devices
+            navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: true
+            }).then(function(stream) {
+                // Display a live preview on the video element of the page
+                setSrcObject(stream, videoElement);
+
+                // Start to display the preview on the video element
+                // and mute the video to disable the echo issue !
+                videoElement.play();
+                videoElement.muted = true;
+
+                // Initialize the recorder
+                recorder = new RecordRTCPromisesHandler(stream, {
+                    mimeType: 'video/webm',
+                    bitsPerSecond: 128000
+                });
+
+                // Start recording the video
+                recorder.startRecording().then(function() {
+                    console.info('Recording video ...');
+                }).catch(function(error) {
+                    console.error('Cannot start video recording: ', error);
+                });
+
+                // release stream on stopRecording
+                recorder.stream = stream;
+
+                // Enable stop recording button
+                document.getElementById('btn-stop-recording').disabled = false;
+            }).catch(function(error) {
+                console.error("Cannot access media devices: ", error);
+            });
+        }, false);
+
+        document.getElementById('btn-stop-recording').addEventListener("click", function(){
+                this.disabled = true;
+
+                recorder.stopRecording().then(function() {
+                    console.info('stopRecording success');
+
+                    // Unmute video on preview
+                    videoElement.muted = false;
+
+                    // Stop the device streaming
+                    recorder.stream.stop();
+                }).catch(function(error) {
+                    console.error('stopRecording failure', error);
+                });
+        }, false);
+
   </script>
+  <script src="/start.js"></script>
 
 </body>
 </html>

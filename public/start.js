@@ -11,34 +11,26 @@ var message = document.querySelector('#message');
         recognition.grammars = speechRecognitionList;
         recognition.lang = 'en-US';
         recognition.interimResults = false;
+        recognition.continuous = true;
 
         recognition.onresult = function(event) {
             var last = event.results.length - 1;
             var command = event.results[last][0].transcript;
-            message.textContent = 'Voice Input: ' + command + '.';
-
-            if(command.toLowerCase() === 'select steve'){
-                document.querySelector('#chkSteve').checked = true;
-            }
-            else if (command.toLowerCase() === 'select tony'){
-                document.querySelector('#chkTony').checked = true;
-            }
-            else if (command.toLowerCase() === 'select bruce'){
-                document.querySelector('#chkBruce').checked = true;
-            }
-            else if (command.toLowerCase() === 'select nick'){
-                document.querySelector('#chkNick').checked = true;
-            }   
+            message.textContent += command + ".";
         };
 
-        recognition.onspeechend = function() {
+        recognition.onend = function() {
+            message.textContent += '.';
+        }
+
+        document.querySelector('#btn-stop-recording').addEventListener('click', function(){
             recognition.stop();
-        };
+        });
 
         recognition.onerror = function(event) {
             message.textContent = 'Error occurred in recognition: ' + event.error;
         }        
 
-        document.querySelector('#btnStart').addEventListener('click', function(){
+        document.querySelector('#btn-start-recording').addEventListener('click', function(){
             recognition.start();
         });
