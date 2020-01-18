@@ -132,12 +132,14 @@
 			<div class="emoDetection">
 				<h2>Emotion detection</h2>
 				<div id="container">
-					<video id="videoel" width="400" height="300" preload="auto" loop>
+					<video style="border-radius: 9px;" id="videoel" width="400" height="300" preload="auto" loop>
 					</video>
 					<canvas id="overlay" width="400" height="300"></canvas>
 				</div>
 				<canvas id="sketch" width="400" height="300"></canvas>
 			</div>
+
+			<div id="chartContainer" ></div>
 			<div class="emotionContainer">
 				<h2>Graph emotion</h2>
 				<div id="emotion_icons">
@@ -159,6 +161,7 @@
 			<button id='btn-check' class='btn btn-info' disabled>Analyze!</button>
 			<br>
 		</div>
+
 		<div class="questionResponse">
 			<% var a = ["Tell me about yourself!", "Why should we hire you?", "What is your greatest strength?", "What is your greatest weakness?", "Why do you want to leave (or have left) your current job?", "Why do you want this job?", "How do you handle stress and pressure?", "Describe a difficult work situation or project and how you overcame it.", "What are your goals for the future?"] %>
 			<% var random = Math.floor(Math.random() * 9) %>
@@ -167,8 +170,15 @@
 			<span id='message'>
 			</span>
 		</div>
-		<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+		<div class="footer">
+			<p style="font-size: 16px;">&copy; 2020 Hack and Roll Interview Trainer</p>
+		</div>
+
 		<script>
+			var emotionGraph = document.querySelector('.emotionContainer');
+			var finalGraph = document.querySelector('#chartContainer');
+			finalGraph.style.display = 'none';
+			finalGraph.style.visibility = 'hidden';
 
 			var message = document.querySelector('#message');
 			var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
@@ -421,12 +431,17 @@
 			$(document).ready(function() {
 				var urlGrammarCheck = "https://api.textgears.com/check.php";
 				$('#btn-check').click(function(){
+						emotionGraph.style.visibility = 'hidden';
+						emotionGraph.style.display = 'none';
+						finalGraph.style.visibility = 'visible';
+						finalGraph.style.display = 'inline';
+
 						var chart = new CanvasJS.Chart("chartContainer", {
 							title: {
 								text: "Emotion Analysis Graph"
 							},
 							axisX: {
-								valueFormatString: "MMM YYYY"
+								valueFormatString: ""
 							},
 							axisY2: {
 								title: "Intensity"

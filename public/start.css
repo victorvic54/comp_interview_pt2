@@ -6,6 +6,7 @@
 body{
 	color: black;
 	font-size: 48px;
+	min-height: 115vh;
     background: linear-gradient(to left, #ba7453, #d1a984);
 }
 
@@ -54,10 +55,19 @@ nav{
 	margin-left: 10%;
 }
 
-.emotionContainer {
+.emotionContainer{
+	border-width: 10px;
 	margin-top: 50px;
 	margin-left: 25%;
 	margin-right: 100px;
+}
+
+#chartContainer{
+	margin-top: 100px;
+	margin-left: 25%;
+	margin-right: 100px;
+	height: 400px;
+	width: 100%;
 }
 
 .speechToText{
@@ -69,3 +79,26 @@ nav{
 	margin-left: 10%;
 	font-size: 24px;
 }
+
+#emotion_icons{
+	background-color: rgb(149, 231, 26);
+	border-top: 3px solid black; 
+	border-left: 3px solid black;
+	border-right: 3px solid black;
+}
+
+svg{
+	border-left: 3px solid black;
+	border-right: 3px solid black;
+	border-bottom: 3px solid black;
+}
+
+.footer{
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	background: linear-gradient(to left, brown, #ba7453);
+	color: white;
+	text-align: center;
+  }
