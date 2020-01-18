@@ -12,13 +12,6 @@
 		<style>
 			@import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
 			
-			body {
-				font-family: 'Lato';
-				background-color: #f0f0f0;
-				margin: 0px auto;
-				max-width: 1150px;
-			}
-			
 			#overlay {
 				position: absolute;
 				top: 0px;
@@ -50,19 +43,15 @@
 				/*margin : 0px auto;*/
 			}
 			
-			#content {
-				margin-top : 50px;
-				margin-left : auto;
-				margin-right : auto;
-				max-width: 600px;
-			}
-			
 			#sketch, #filter {
 				display: none;
 			}
 			
 			h2 {
-				font-weight : 400;
+				font-family: 'Lato';
+				font-weight : 600;
+				margin-top: 30px;
+				color: black;
 			}
 			
 			.btn {
@@ -74,13 +63,9 @@
 				text-align : center;
 			}
 
-			#emotion_container {
-				width: 600px;
-			}
-
 			#emotion_icons {
 				height: 50px;
-				padding-left: 40px;
+				margin-bottom: 20px;
 			}
 
 			.emotion_icon {
@@ -94,6 +79,7 @@
 			#emotion_chart, #emotion_icons {
 				margin: 0 auto;
 				width : 400px;
+				height: 100px;
 			}
 
 			#icon1, #icon2, #icon3, #icon4, #icon5, #icon6 {
@@ -137,15 +123,22 @@
 		<script src="/d3.min.js"></script>
 		<script src="/emotion_classifier.js"></script>
 		<script src="/emotionmodel.js"></script>
-		<div id="content">
-			<h2>Emotion detection</h2>
-			<div id="container">
-				<video id="videoel" width="400" height="300" preload="auto" loop>
-				</video>
-				<canvas id="overlay" width="400" height="300"></canvas>
+
+		<nav>
+            <h3 id="logo">Interview Trainer</h3>
+		</nav>
+		
+		<div class="content">
+			<div class="emoDetection">
+				<h2>Emotion detection</h2>
+				<div id="container">
+					<video id="videoel" width="400" height="300" preload="auto" loop>
+					</video>
+					<canvas id="overlay" width="400" height="300"></canvas>
+				</div>
+				<canvas id="sketch" width="400" height="300"></canvas>
 			</div>
-			<canvas id="sketch" width="400" height="300"></canvas>
-			<div id="emotion_container">
+			<div class="emotionContainer">
 				<div id="emotion_icons">
 					<img class="emotion_icon" id="icon1" src="/media/icon_angry.png">
 					<img class="emotion_icon" id="icon2" src="/media/icon_sad.png">
@@ -157,20 +150,23 @@
 			<!-- <div id="controls">
 				<input class="btn" type="button" value="wait, loading video" disabled="disabled" onclick="startVideo()" id="btn-start-recording"></input>
 				<input class="btn" type="button" value="Stop" onclick="stopVideo()" id="btn-stop-recording"></input>
-            </div> -->
-            <div class="speechToText">
-                <button onclick="startVideo()" id='btn-start-recording' class='btn btn-primary'>Start Recording</button>
-                <button onclick="stopVideo()" id='btn-stop-recording' class='btn btn-danger' disabled>Stop Recoding</button>
-                <button id='btn-check' class='btn btn-info' disabled>Analyze!</button>
-                <br><br>
-            </div>
-            <div>
-                <span>Question: Tell me about yourself! </span>
-                <br>
-                <span id='message'>
-                  Your response:
-                </span>
-            </div>
+			</div> -->
+		</div>
+		<div class="speechToText">
+			<button onclick="startVideo()" id='btn-start-recording' class='btn btn-primary'>Start Recording</button>
+			<button onclick="stopVideo()" id='btn-stop-recording' class='btn btn-danger' disabled>Stop Recoding</button>
+			<button id='btn-check' class='btn btn-info' disabled>Analyze!</button>
+			<br>
+		</div>
+		<div class="questionResponse">
+			<% var a = ["Tell me about yourself!", "Why should we hire you?", "What is your greatest strength?", "What is your greatest weakness?", "Why do you want to leave (or have left) your current job?", "Why do you want this job?", "How do you handle stress and pressure?", "Describe a difficult work situation or project and how you overcame it.", "What are your goals for the future?"] %>
+			<% var random = Math.floor(Math.random() * 9) %>
+				Question: <%= a[random] %>
+			<br>
+			<span id='message'>
+				Your response:
+			</span>
+		</div>
 			<script>
 				var vid = document.getElementById('videoel');
 				var overlay = document.getElementById('overlay');
@@ -330,15 +326,15 @@
 				  attr("x", function(datum, index) { return x(index) + barWidth; }).
 				  attr("y", function(datum) { return height - y(datum.value); }).
 				  attr("dx", -barWidth/2).
-				  attr("dy", "1.2em").
+				  attr("dy", "1.5em").
 				  attr("text-anchor", "middle").
 				  text(function(datum) { return datum.value;}).
-				  attr("fill", "white").
+				  attr("fill", "black").
 				  attr("class", "labels");
 				
 				svg.selectAll("text.yAxis").
 				  data(emotionData).
-				  enter().append("svg:text").
+				  enter().append("svg:text")
 				  attr("x", function(datum, index) { return x(index) + barWidth; }).
 				  attr("y", height).
 				  attr("dx", -barWidth/2).
@@ -383,6 +379,5 @@
             </script>
             <script src="/start.js"></script>
 		
-		</div>
 	</body>
 </html>
