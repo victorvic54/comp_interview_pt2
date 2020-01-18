@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Face tracker</title>
@@ -139,6 +139,7 @@
 				<canvas id="sketch" width="400" height="300"></canvas>
 			</div>
 			<div class="emotionContainer">
+				<h2>Graph emotion</h2>
 				<div id="emotion_icons">
 					<img class="emotion_icon" id="icon1" src="/media/icon_angry.png">
 					<img class="emotion_icon" id="icon2" src="/media/icon_sad.png">
@@ -238,8 +239,7 @@
                     
                     // Enable stop recording button
                     document.getElementById('btn-stop-recording').disabled = false;
-                    document.getElementById('btn-start-recording').disabled = true;
-
+					document.getElementById('btn-start-recording').disabled = true;
 
 					// start tracking
 					ctrack.start(vid);
@@ -261,16 +261,16 @@
 					//ctrack.start(vid);
 					// start loop to draw face
 					//drawLoop();
-                }
-            
+				}
+				
 				function drawLoop() {
 					requestAnimFrame(drawLoop);
 					overlayCC.clearRect(0, 0, 400, 300);
 					//psrElement.innerHTML = "score :" + ctrack.getScore().toFixed(4);
 					if (ctrack.getCurrentPosition()) {
 						ctrack.draw(overlay);
-
 					}
+
 					var cp = ctrack.getCurrentParameters();
 					
 					var er = ec.meanPredict(cp);
@@ -294,7 +294,7 @@
 
 				var margin = {top : 20, right : 20, bottom : 10, left : 40},
 					width = 400 - margin.left - margin.right,
-					height = 100 - margin.top - margin.bottom;
+					height = 200 - margin.top - margin.bottom;
 
 				var barWidth = 30;
 
@@ -308,7 +308,7 @@
 
 				var svg = d3.select("#emotion_chart").append("svg")
 					.attr("width", width + margin.left + margin.right)
-					.attr("height", height + margin.top + margin.bottom)
+					.attr("height", height + 50 + margin.top + margin.bottom)
 				
 				svg.selectAll("rect").
 				  data(emotionData).
@@ -335,7 +335,7 @@
 				
 				svg.selectAll("text.yAxis").
 				  data(emotionData).
-				  enter().append("svg:text")
+				  enter().append("svg:text").
 				  attr("x", function(datum, index) { return x(index) + barWidth; }).
 				  attr("y", height).
 				  attr("dx", -barWidth/2).
