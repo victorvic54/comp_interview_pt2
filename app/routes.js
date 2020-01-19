@@ -5,10 +5,10 @@ const moment = require('moment');
 
 module.exports = (app) => {
     app.get('/', (req, res) => {
-        res.render("landing.ejs", { title: 'Getting Started' });
+        res.render("landing.ejs");
     });
 
     app.get('/start', (req, res) => {
-        res.render('start.ejs', { title: 'Interview Dashboard' });
+        res.render('start.ejs');
     })
 }
