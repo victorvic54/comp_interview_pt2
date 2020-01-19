@@ -504,19 +504,19 @@
 					$.ajax({
 						url: urlGrammarCheck,
 						data: {
-							text: message.textContent,
+							text: message.textContent.trim(),
 							key: 'wTZGURy3SHOYjHyR'
 						},
 						type: 'POST',
 						success: function(result) {
-							var initialMessage = document.getElementById('message').innerHTML;
+							var initialMessage = message.textContent    .trim();
 							var finalMessage = 'Your response: ';
 							var prev = 0;
 							var temp = 0;
 							result.errors.forEach(error => {
 								const change = error.offset + error.length;
 								const suggestion = error.better[0];
-								finalMessage += initialMessage.substring(temp, prev + error.offset) + "<span class='highlight' title=" + suggestion
+								finalMessage += initialMessage.substring(temp , prev + error.offset) + "<span class='highlight' title=" + suggestion
 										+ ">" + initialMessage.substring(prev + error.offset, prev + change) + "</span>";
 								temp = prev + change;
 							});

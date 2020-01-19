@@ -1,3 +1,4 @@
+//Credit to: https://github.com/inversemaha/Emotion_Detection
 "use strict";
 var emotionClassifier = function() {
 
