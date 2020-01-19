@@ -1,0 +1,27 @@
+{
+  "name": "interview_pt2",
+  "version": "1.0.0",
+  "description": "help people to prepare before interview",
+  "main": "server.js",
+  "dependencies": {
+    "connect-flash": "^0.1.1",
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
+    "moment": "^2.24.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/victorvic54/interview_pt2.git"
+  },
+  "author": "\"victor, william\"",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/victorvic54/interview_pt2/issues"
+  },
+  "homepage": "https://github.com/victorvic54/interview_pt2#readme"
+}
