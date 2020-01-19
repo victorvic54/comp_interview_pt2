@@ -516,8 +516,8 @@
 							result.errors.forEach(error => {
 								const change = error.offset + error.length;
 								const suggestion = error.better[0];
-								finalMessage += initialMessage.substring(temp , prev + error.offset) + "<span class='highlight' title=" + suggestion
-										+ ">" + initialMessage.substring(prev + error.offset, prev + change) + "</span>";
+								finalMessage += initialMessage.substring(temp , prev + error.offset) + "<span class='highlight' title=\"" + suggestion
+										+ "\"" + ">" + initialMessage.substring(prev + error.offset, prev + change) + "</span>";
 								temp = prev + change;
 							});
 							finalMessage += initialMessage.substring(temp);
